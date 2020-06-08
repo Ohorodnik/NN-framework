@@ -11,7 +11,11 @@ class GradientDescent:
     ---------
     learning_rate : float
         learnin rate or step size
-
+    momentum : float [0, 1]
+        cosntant used in velocity unpdate:
+            velocity = momentum * velocity - learning_rate * gradient
+            parameter = parameter + velocity
+            
     Methods
     -------
     update_parameters(NN, gradients)
@@ -19,15 +23,19 @@ class GradientDescent:
     """
 
 
-    def __init__(self, learning_rate=0.01):
+    def __init__(self, learning_rate=0.01, momentum=0):
         """
         Parameters
         ----------
         learning_rate : float
-            learning rate or step size
+            learning rate or step 
+        momentum : float [0, 1]
+            cosntant used in velocity unpdate:
         """
         
         self.learning_rate = learning_rate
+        self.momentum = momentum
+        self.velocities = dict()
 
 
     def apply_gradients(self, grads_and_vars):
@@ -39,11 +47,8 @@ class GradientDescent:
         """
 
         for gradient, variable in grads_and_vars:
-            update = self.learning_rate * self.__get_update(
-                var=variable,
-                grad=gradient
-                )
-            variable.assign_sub(update)
+            update = self.__get_update(var=variable, grad=gradient)
+            variable.assign_add(update)
 
     
     def __get_update(self, var, grad):
@@ -54,7 +59,18 @@ class GradientDescent:
         paramater must have unique and constant name.
         """
 
-        return grad
+        assert var.shape == grad.shape
+
+        if self.momentum != 0:
+            velocity = self.velocities.setdefault(key=var.name, default=0)
+        
+            assert velocity.shape == grad.shape
+            
+            new_velocity = self.momentum * velocity - self.learning_rate * grad
+        else:
+            new_velocity = -self.learning_rate * grad
+    
+        return new_velocity
 
 
 
