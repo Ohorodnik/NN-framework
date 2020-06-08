@@ -52,9 +52,6 @@ class BaseGradientDescent(object):
     def _get_update(self, var, grad):
         """
         Compute updater for given parameter.
-        
-        WARNING: implementation rely on tf.Variable.name. Each
-        paramater must have unique and constant name.
         """
     
         return -self.learning_rate * grad
@@ -93,7 +90,7 @@ class GradientDescent(BaseGradientDescent):
         
         super().__init__(learning_rate)
         self.momentum = momentum
-        self.__velocities = dict()
+        self._velocities = dict()
 
     
     def _get_update(self, var, grad):
@@ -107,16 +104,48 @@ class GradientDescent(BaseGradientDescent):
         assert var.shape == grad.shape
 
         if self.momentum != 0:
-            velocity = self.__velocities.setdefault(var.name, tf.zeros_like(grad))
+            velocity = self._velocities.setdefault(var.name, tf.zeros_like(grad))
         
             assert velocity.shape == grad.shape
             
             new_velocity = self.momentum * velocity - self.learning_rate * grad
-            self.__velocities[var.name] = new_velocity
+            self._velocities[var.name] = new_velocity
         else:
             new_velocity = -self.learning_rate * grad
     
         return new_velocity
+
+
+
+#%%
+class Adam(BaseGradientDescent):
+    """
+    Adam optimization algorithm. See: https://arxiv.org/abs/1412.6980.
+    
+    Attributes
+    ----------
+    learning_rate : float
+        step size
+    first_moment_rate : float [0, 1]
+        decay rate for first moment estimation
+    second_moment_rate : foat [0, 1]
+        decay rate for second moment estimation
+    num_stability : float
+        small constant for numerical stability
+        
+    Methods
+    -------
+    update_parameters(NN, gradients)
+        Applay parameters update.
+    """
+    
+    def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07):
+        pass
+    
+    
+    def _get_update(self, var, grad):
+        pass
+    
 
 
 # %%
