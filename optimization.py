@@ -35,7 +35,7 @@ class GradientDescent:
         
         self.learning_rate = learning_rate
         self.momentum = momentum
-        self.velocities = dict()
+        self.__velocities = dict()
 
 
     def apply_gradients(self, grads_and_vars):
@@ -62,11 +62,12 @@ class GradientDescent:
         assert var.shape == grad.shape
 
         if self.momentum != 0:
-            velocity = self.velocities.setdefault(key=var.name, default=0)
+            velocity = self.__velocities.setdefault(var.name, tf.zeros_like(grad))
         
             assert velocity.shape == grad.shape
             
             new_velocity = self.momentum * velocity - self.learning_rate * grad
+            self.__velocities[var.name] = new_velocity
         else:
             new_velocity = -self.learning_rate * grad
     

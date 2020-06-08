@@ -81,8 +81,14 @@ history = clf.fit(
     )
 
 # %%
+tf.random.set_seed(42)
+
 loss = tf.keras.losses.CategoricalCrossentropy()
-gradient_descent = GradientDescent(learning_rate=0.01)
+gradient_descent = GradientDescent(learning_rate=0.01, momentum=0.9)
+
+dataset = tf.data.Dataset.from_tensor_slices(
+    (tf.cast(X_train, dtype=tf.float32), tf.cast(Y_train, dtype=tf.int32))
+    ).shuffle(X_train.shape[0]).batch(64)
 
 inputs = tf.keras.Input(shape=(2,))
 x = tf.keras.layers.Dense(3, activation='relu')(inputs)
