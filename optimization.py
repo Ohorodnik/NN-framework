@@ -3,7 +3,65 @@ import numpy as np
 
 
 # %%
-class GradientDescent:
+class BaseGradientDescent(object):
+    """
+    A class represinting optimization algorithm.
+
+    Atributes
+    ---------
+    learning_rate : float
+        learnin rate or step size
+    momentum : float [0, 1]
+        cosntant used in velocity unpdate:
+            velocity = momentum * velocity - learning_rate * gradient
+            parameter = parameter + velocity
+            
+    Methods
+    -------
+    update_parameters(NN, gradients)
+        Applay parameters update.
+    """
+
+
+    def __init__(self, learning_rate=0.01):
+        """
+        Parameters
+        ----------
+        learning_rate : float
+            learning rate or step 
+        momentum : float [0, 1]
+            cosntant used in velocity unpdate:
+        """
+        
+        self.learning_rate = learning_rate
+
+
+    def apply_gradients(self, grads_and_vars):
+        """
+        Parameters
+        ----------
+        grads_and_vars : iterable
+            list of (gradient, vatiable) pairs
+        """
+
+        for gradient, variable in grads_and_vars:
+            update = self._get_update(var=variable, grad=gradient)
+            variable.assign_add(update)
+
+    
+    def _get_update(self, var, grad):
+        """
+        Compute updater for given parameter.
+        
+        WARNING: implementation rely on tf.Variable.name. Each
+        paramater must have unique and constant name.
+        """
+    
+        return -self.learning_rate * grad
+
+
+# %%
+class GradientDescent(BaseGradientDescent):
     """
     A class represinting optimization algorithm.
 
@@ -33,25 +91,12 @@ class GradientDescent:
             cosntant used in velocity unpdate:
         """
         
-        self.learning_rate = learning_rate
+        super().__init__(learning_rate)
         self.momentum = momentum
         self.__velocities = dict()
 
-
-    def apply_gradients(self, grads_and_vars):
-        """
-        Parameters
-        ----------
-        grads_and_vars : iterable
-            list of (gradient, vatiable) pairs
-        """
-
-        for gradient, variable in grads_and_vars:
-            update = self.__get_update(var=variable, grad=gradient)
-            variable.assign_add(update)
-
     
-    def __get_update(self, var, grad):
+    def _get_update(self, var, grad):
         """
         Compute updater for given parameter.
         
@@ -72,7 +117,6 @@ class GradientDescent:
             new_velocity = -self.learning_rate * grad
     
         return new_velocity
-
 
 
 # %%
