@@ -62,7 +62,6 @@ history = clf.fit(
 tf.random.set_seed(42)
 
 loss = tf.keras.losses.BinaryCrossentropy()
-gradient_descent = optimization.GradientDescent(learning_rate=0.01, momentum=0.9)
 
 dataset = tf.data.Dataset.from_tensor_slices(
     (tf.cast(X, dtype=tf.float32), tf.cast(Y, dtype=tf.int32))
@@ -80,7 +79,7 @@ train(
     NN=clf,
     dataset=dataset,
     loss=loss,
-    optimizer=tf.keras.optimizers.Adam(),
+    optimizer=optimization.Adam(),
     epochs=50
 )
 

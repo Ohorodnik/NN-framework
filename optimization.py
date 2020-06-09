@@ -140,15 +140,82 @@ class Adam(BaseGradientDescent):
     """
     
     def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07):
-        pass
+        """
+        Parameters
+        ----------
+        learning_rate : foat
+            global learning rate. The default is 0.001.
+        beta_1 : float, [0, 1)
+            decay rate for first moment. The default is 0.9.
+        beta_2 : float, [0, 1)
+            decay rate for second moment. The default is 0.999.
+        epsilon : float, << 0
+            small constant for numerical stability. The default is 1e-07.
+
+        Returns
+        -------
+        None.
+        """
+        
+        super().__init__(learning_rate)
+        self.first_moment_rate = beta_1
+        self.second_moment_rate = beta_2
+        self.num_stability = epsilon
+        self._first_moments = dict()
+        self._second_moments = dict()
+        self._step = 0
+    
+    
+    def apply_gradients(self, grads_and_vars):
+        """
+        Update parameters of network according to algorithm rule.
+        
+        Parameters
+        ----------
+        grads_and_vars : iterable
+            list of (gradient, vatiable) pairs
+        """
+        self._step += 1
+        super().apply_gradients(grads_and_vars)
     
     
     def _get_update(self, var, grad):
-        pass
+        
+        assert var.shape == grad.shape
+        
+        first_moment = self._first_moments.setdefault(
+            var.name,
+            tf.zeros_like(grad)
+            )
+        
+        assert grad.shape == first_moment.shape
+        
+        second_moment = self._second_moments.setdefault(
+            var.name,
+            tf.zeros_like(grad)
+            )
+        
+        assert grad.shape == second_moment.shape
+        
+        biased_first_moment = (self.first_moment_rate * first_moment
+                               + (1 - self.first_moment_rate) * grad)
+        biased_second_moment = (self.second_moment_rate * second_moment
+                                + (1 - self.second_moment_rate) * grad**2)
+        corrected_first_moment = (biased_first_moment
+                                  / (1 - self.first_moment_rate**self._step))
+        corrected_second_moment = (biased_second_moment
+                                   / (1 - self.second_moment_rate**self._step))
+        
+        self._first_moments[var.name] = biased_first_moment
+        self._second_moments[var.name] = biased_second_moment
+        
+        return (- self.learning_rate * corrected_first_moment
+                / (corrected_second_moment**(1/2) + self.num_stability))
+        
     
 
 
-# %%
+        # %%
 def sample_mini_batches(X, Y, mini_batch_size, random_seed=None):
     """
     Iterator over mini-batches.
