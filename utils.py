@@ -11,14 +11,20 @@ def plot_decision(model, features, labels):
 
     xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
     
-    Z = model(np.c_[xx.ravel(), yy.ravel()]).numpy().argmax(axis=1)
+    Z = model(np.c_[xx.ravel(), yy.ravel()]).numpy()
     Z = Z.reshape(xx.shape)
     
     #figure = plt.figure(figsize=(27, 9))
     ax = plt.subplot()
 
     ax.contourf(xx, yy, Z, cmap=plt.cm.Spectral, alpha=.8)
-    ax.scatter(features[:, 0], features[:, 1], c=labels.ravel(), cmap=plt.cm.Spectral)
+    rng = np.random.default_rng(seed=42)
+    indx = np.arange(start=0, stop=features.shape[0], step=1)
+    rng.shuffle(indx)
+    sample_indx = indx[:300]
+    X = features[sample_indx]
+    Y = labels[sample_indx]
+    ax.scatter(X[:, 0], X[:, 1], c=Y.ravel(), cmap=plt.cm.Spectral)
     ax.set_xlim(xx.min(), xx.max())
     ax.set_ylim(yy.min(), yy.max())
     ax.set_xticks(())
