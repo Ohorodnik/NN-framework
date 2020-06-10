@@ -3,7 +3,7 @@ import numpy as np
 from itertools import count
 
 
-class NeuralNet:
+class NeuralNet(object):
     """
     A neural network model
 
@@ -24,12 +24,8 @@ class NeuralNet:
             layers of the network
         """
 
-        trainable_weights = []
-        for layer in layers:
-            trainalble_weights += layer.trainable_weights
-
         self.layers = layers
-        self.trainable_weights = trainable_weights
+        self.trainable_weights = []
 
 
     def __call__(self, inputs):
@@ -50,7 +46,7 @@ class NeuralNet:
         
         activations = inputs
         for layer in self.layers:
-            assert inputs.shape[1] == layer.W.shape[0]
+            assert activations.shape[1] == layer.W.shape[0]
             activations = layer(activations)
 
         return activations
@@ -78,42 +74,83 @@ class NeuralNet:
             assert self.layers[-1].W.shape[1] == layer.W.shape[0]
         
         self.layers.append(layer)
-        self.trainable_weights += layer.trainavle_weights
 
         return self
+    
+    
+    def backprop(self, dY):
+        """
+        Backpropagete gdatient of the loss through the network.
+
+        Parameters
+        ----------
+        dY : tf.Tensor
+            gradien of the loss with respect to output of the network.
+
+        Returns
+        -------
+        gradients : iterable
+            collection of the gradients of the loss with respect to all trainable
+            parametrs. (Same order as trainable_weights)
+
+        """
+        
+        gradients = None
+        
+        return gradients
 
 
-class Layer:
+class Layer(object):
     """
-    A single layer of neural network.
+    A single generic layer of neural network.
 
     Attributes
     ---------
-    W : tf.Variable
-        Weights associated with layer inputs
-        shape=(input, output)
-    B : tf.Variable
-        Biases associated with layer inputs
-        shape=(1, outputs)
-    activation : tensorflow function
-        activation of the layer
+    trainable_weights : iterable
+        trainable weights of layer:
+        W - weights associated with layer inputs. shape=(input, output)
+        B - biases associated with layer inputs. shape=(1, outputs) (if use_bias=True)
+    activation : function
+        activation of the layer.
+    units_num : int
+        number of unint is the layer.
+    input_num: int
+        number of inputs to a unit.
+    l2_regularization : float
+        constant controling amount of regularization applied to weight matrix.
+        
     """
     
     _id = count(0)
 
-    def __init__(self, units_num, input_dim, activation, initialization):
+    def __init__(
+            self, units_num, input_num, activation, kernel_initializer, bias_initializer,
+            use_bias=True, l2_regularizatoin=0.0
+        ):
         """
+
         Parameters
         ----------
         units_num : int
-            number of units in layer
-        input_dim : int
-            number of unit inputs
+            number of unint is the layer.
+        input_num : int
+            number of inputs to a unit.
         activation : func
-            activation function
-        initialization: func
-            function to initialize W
-            func(shape, dtype) -> tf.constant
+            ativation function for layer.
+        kernel_initializer : func
+            given shape return tensor inintialized acording to initialization scheme.
+        bias_initializer : func
+            given shape return tensor inintialized acording to initialization scheme.
+        use_bias : bool, optional
+            wheter to use bias term when computing preactivation. The default is True.
+        l2_regularizatoin : float, optional
+            constant controling amount of regularization applied to weight matrix.
+            The default is 0.0.
+
+        Returns
+        -------
+        None.
+
         """
 
         
@@ -135,9 +172,29 @@ class Layer:
             shape=(sample size, number of units in the layer)
         """
 
+        activations = None
 
-        return acivations
+        return activations
 
+    def backprop(self, dA):
+        '''
+        Compute backpropagation step.
+
+        Parameters
+        ----------
+        dA : tf.Tensor
+            gradient of  loss with respect to activations of the layer
+
+        Returns
+        -------
+        gradients : iterable
+            gradients of the loss with respect to trainable weights of layer
+
+        '''
+        
+        gradients = None
+        
+        return gradients
 
 
 class Dropout:
