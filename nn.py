@@ -13,6 +13,12 @@ class NeuralNet(object):
         contains all trainable parameters.
     layers : iterable
         ordered collection of network layers.
+        
+    Methods
+    -------
+    add(layer)
+        append layer to network.
+    TODO
     """
 
 

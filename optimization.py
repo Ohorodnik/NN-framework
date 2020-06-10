@@ -18,8 +18,7 @@ class BaseGradientDescent(object):
             
     Methods
     -------
-    update_parameters(NN, gradients)
-        Applay parameters update.
+    TODO
     """
 
 
@@ -73,8 +72,7 @@ class GradientDescent(BaseGradientDescent):
             
     Methods
     -------
-    update_parameters(NN, gradients)
-        Applay parameters update.
+    TODO
     """
 
 
@@ -135,8 +133,7 @@ class Adam(BaseGradientDescent):
         
     Methods
     -------
-    update_parameters(NN, gradients)
-        Applay parameters update.
+    TODO
     """
     
     def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07):
