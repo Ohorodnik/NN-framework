@@ -12,11 +12,12 @@ import tensorflow as tf
 class ReLU(object):
     '''
     Rectified linear unit activation.
+    A = max(Z, 0)
     
     Methods
     -------
-    jacobian()
-        get jacobion with respect to the last input
+    get_jacobian(X) -> jacobian
+        get jacobion with respect to preacivation Z, evaluated at X.
     '''
     pass
     
@@ -25,8 +26,12 @@ class ReLU(object):
 class SoftMax(object):
     '''
     Softmax activation.
+    A_i = e^(Z_i) / sum(e^Z)
     
-    TODO
+    Methods
+    -------
+    get_jacobian(X) -> jacobian
+        get jacobion with respect to preacivation Z, evaluated at X.
     '''
     pass
 
@@ -35,8 +40,12 @@ class SoftMax(object):
 class Sigmoid(object):
     '''
     Sigmoid activation
+    A = 1 / (1 + e^Z)
     
-    TODO
+    Methods
+    -------
+    get_jacobian(X) -> jacobian
+        get jacobion with respect to preacivation Z, evaluated at X.
     '''
     pass
 
@@ -45,8 +54,12 @@ class Sigmoid(object):
 class BinaryCrossentropy(object):
     '''
     Cross-entropy loss for binary classification
+    loss = -mean(Y * ln(A) + (1 - Y) * ln(1 - A))
     
-    TODO
+    Methods
+    -------
+    get_gradient(A) -> gradinet
+        get gradient
     '''
     pass
 
@@ -56,7 +69,8 @@ class CategoricalCrossentropy(object):
     '''
     Cross-entropy loss for multi-class clasification
     
-    TODO
+    get_gradient(A, use_logits) -> gradinet
+        get gradient
     '''
     pass
 
@@ -66,6 +80,8 @@ class MeanSquaredError(object):
     '''
     Loss for regression.
     
-    TODO
+    get_gradient(A) -> gradinet
+        get gradient
     '''
     pass
+

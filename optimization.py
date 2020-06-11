@@ -18,7 +18,12 @@ class BaseGradientDescent(object):
             
     Methods
     -------
-    TODO
+    Update parameters of network according to algorithm rule.
+    
+    Parameters
+    ----------
+    grads_and_vars : iterable
+        list of (gradient, vatiable) pairs
     """
 
 
@@ -37,6 +42,8 @@ class BaseGradientDescent(object):
 
     def apply_gradients(self, grads_and_vars):
         """
+        Update parameters of network according to algorithm rule.
+        
         Parameters
         ----------
         grads_and_vars : iterable
@@ -69,10 +76,6 @@ class GradientDescent(BaseGradientDescent):
         cosntant used in velocity unpdate:
             velocity = momentum * velocity - learning_rate * gradient
             parameter = parameter + velocity
-            
-    Methods
-    -------
-    TODO
     """
 
 
@@ -130,10 +133,6 @@ class Adam(BaseGradientDescent):
         decay rate for second moment estimation
     num_stability : float
         small constant for numerical stability
-        
-    Methods
-    -------
-    TODO
     """
     
     def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07):

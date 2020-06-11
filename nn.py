@@ -16,9 +16,10 @@ class NeuralNet(object):
         
     Methods
     -------
-    add(layer)
+    add(layer) -> self
         append layer to network.
-    TODO
+    backprop() -> gradinents
+        Backpropagete gdatient of the loss through the network.
     """
 
 
@@ -125,6 +126,10 @@ class Layer(object):
     l2_regularization : float
         constant controling amount of regularization applied to weight matrix.
         
+    Methods
+    -------
+    backprop(dA) -> gradinents
+        Compute backpropagation step.
     """
     
     _id = count(0)
