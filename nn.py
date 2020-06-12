@@ -34,7 +34,7 @@ class NeuralNet(object):
 
         self.layers = layers
         self.trainable_weights = []
-        self._is_bilded = False
+        self.built = False
 
 
     def __call__(self, inputs):
@@ -52,6 +52,9 @@ class NeuralNet(object):
             activations of last layer on network.
             shape=(sample size, output dimmentions)
         """
+        
+        if not self.built:
+            self.build(input[0].shape)
         
         activations = inputs
         for layer in self.layers:
@@ -78,16 +81,18 @@ class NeuralNet(object):
         self
             network with added layer 
         """
-
-        if self.layers:
-            assert self.layers[-1].W.shape[1] == layer.W.shape[0]
         
+        if not layer.built:
+            self.built = False
+        else:
+            assert self.layers[-1].units == layer.kernel.shape[0]
+
         self.layers.append(layer)
 
         return self
     
     
-    def build(self,input_shape):
+    def build(self, input_shape):
         """
         Create variables for all layers in the network.
 
@@ -102,12 +107,18 @@ class NeuralNet(object):
 
         """
         
-        input_dim = input_shape
+        input_dim = input_shape[1]
         for layer in self.layers:
-            layer.build(input_dim)
-            input_dim = (layer.units, )
+            if not layer.built:
+                layer.build(input_shape=(1, input_dim))
+            else:
+                pass
+            
+            input_dim = layer.units
             
             self.trainable_weights += layer.trainable_weights
+            
+        self.built = True
     
     
     def backprop(self, dY):
@@ -159,8 +170,6 @@ class Layer(object):
     build(input_shape) -> None
         Create variables for the layer.
     """
-    
-    _id = count(0)
 
     def __init__(
             self, units, activation, kernel_initializer, bias_initializer,

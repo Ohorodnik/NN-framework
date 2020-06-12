@@ -98,8 +98,6 @@ class GradientDescent(BaseGradientDescent):
         """
         Compute updater for given parameter.
         
-        WARNING: implementation rely on tf.Variable.name. Each
-        paramater must have unique and constant name.
         """
 
         assert var.shape == grad.shape
