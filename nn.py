@@ -3,6 +3,7 @@ import numpy as np
 from itertools import count
 
 
+# %%
 class NeuralNet(object):
     """
     A neural network model
@@ -33,6 +34,7 @@ class NeuralNet(object):
 
         self.layers = layers
         self.trainable_weights = []
+        self._is_bilded = False
 
 
     def __call__(self, inputs):
@@ -85,6 +87,29 @@ class NeuralNet(object):
         return self
     
     
+    def build(self,input_shape):
+        """
+        Create variables for all layers in the network.
+
+        Parameters
+        ----------
+        input_shape : Collection
+            shape of a single input.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        input_dim = input_shape
+        for layer in self.layers:
+            layer.build(input_dim)
+            input_dim = (layer.units, )
+            
+            self.trainable_weights += layer.trainable_weights
+    
+    
     def backprop(self, dY):
         """
         Backpropagete gdatient of the loss through the network.
@@ -107,6 +132,7 @@ class NeuralNet(object):
         return gradients
 
 
+# %%
 class Layer(object):
     """
     A single generic layer of neural network.
@@ -119,9 +145,9 @@ class Layer(object):
         B - biases associated with layer inputs. shape=(1, outputs) (if use_bias=True)
     activation : function
         activation of the layer.
-    units_num : int
+    units : int
         number of unint is the layer.
-    input_num: int
+    input_shape: int
         number of inputs to a unit.
     l2_regularization : float
         constant controling amount of regularization applied to weight matrix.
@@ -130,13 +156,15 @@ class Layer(object):
     -------
     backprop(dA) -> gradinents
         Compute backpropagation step.
+    build(input_shape) -> None
+        Create variables for the layer.
     """
     
     _id = count(0)
 
     def __init__(
-            self, units_num, input_num, activation, kernel_initializer, bias_initializer,
-            use_bias=True, l2_regularizatoin=0.0
+            self, units, activation, kernel_initializer, bias_initializer,
+             input_shape=None, use_bias=True, l2_regularizatoin=0.0
         ):
         """
 
@@ -144,14 +172,14 @@ class Layer(object):
         ----------
         units_num : int
             number of unint is the layer.
-        input_num : int
-            number of inputs to a unit.
         activation : func
             ativation function for layer.
         kernel_initializer : func
             given shape return tensor inintialized acording to initialization scheme.
         bias_initializer : func
             given shape return tensor inintialized acording to initialization scheme.
+        input_num : int, optional
+            number of inputs to a unit. The default is None
         use_bias : bool, optional
             wheter to use bias term when computing preactivation. The default is True.
         l2_regularizatoin : float, optional
@@ -206,8 +234,25 @@ class Layer(object):
         gradients = None
         
         return gradients
+    
+    
+    def build(self, input_shape):
+        """
+        Create variables for the layer.
+
+        Parameters
+        ----------
+        input_shape : Collection
+            shape of a single input.
+
+        Returns
+        -------
+        None.
+
+        """
 
 
+# %%
 class Dropout:
     """
     Dropout regulariozation layer.
@@ -243,3 +288,11 @@ class Dropout:
         reguralized_activations = None
 
         return reguralized_activations
+
+
+# %%
+class BatchNormalization(object):
+    """
+    TODO
+    """
+    
