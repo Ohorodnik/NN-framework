@@ -104,13 +104,15 @@ class GradientDescent(BaseGradientDescent):
 
         assert var.shape == grad.shape
 
+        var_id = id(var)
+
         if self.momentum != 0:
-            velocity = self._velocities.setdefault(var.name, tf.zeros_like(grad))
+            velocity = self._velocities.setdefault(var_id, tf.zeros_like(grad))
         
             assert velocity.shape == grad.shape
             
             new_velocity = self.momentum * velocity - self.learning_rate * grad
-            self._velocities[var.name] = new_velocity
+            self._velocities[var_id] = new_velocity
         else:
             new_velocity = -self.learning_rate * grad
     
@@ -179,15 +181,17 @@ class Adam(BaseGradientDescent):
         
         assert var.shape == grad.shape
         
+        var_id = id(var)
+        
         first_moment = self._first_moments.setdefault(
-            var.name,
+            var_id,
             tf.zeros_like(grad)
             )
         
         assert grad.shape == first_moment.shape
         
         second_moment = self._second_moments.setdefault(
-            var.name,
+            var_id,
             tf.zeros_like(grad)
             )
         
@@ -202,8 +206,8 @@ class Adam(BaseGradientDescent):
         corrected_second_moment = (biased_second_moment
                                    / (1 - self.second_moment_rate**self._step))
         
-        self._first_moments[var.name] = biased_first_moment
-        self._second_moments[var.name] = biased_second_moment
+        self._first_moments[var_id] = biased_first_moment
+        self._second_moments[var_id] = biased_second_moment
         
         return (- self.learning_rate * corrected_first_moment
                 / (corrected_second_moment**(1/2) + self.num_stability))
