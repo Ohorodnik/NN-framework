@@ -31,10 +31,18 @@ class NeuralNet(object):
         layers : iterable
             layers of the network
         """
-
+        layers_built = all([layer.built for layer in layers])
+        
+        if layers_built:
+            for layer_l, layer_r in zip(layers[:-1], layers[1:]):
+                assert layer_l.units == layer_r.kernel.shape[0]
+        else:
+            pass
+                
+        
         self.layers = layers
         self.trainable_weights = []
-        self.built = False
+        self.built = layers_built
 
 
     def __call__(self, inputs):
@@ -54,11 +62,12 @@ class NeuralNet(object):
         """
         
         if not self.built:
-            self.build(input[0].shape)
+            self.build(inputs.shape)
+        else:
+            pass
         
         activations = inputs
         for layer in self.layers:
-            assert activations.shape[1] == layer.W.shape[0]
             activations = layer(activations)
 
         return activations
@@ -82,10 +91,11 @@ class NeuralNet(object):
             network with added layer 
         """
         
-        if not layer.built:
-            self.built = False
-        else:
+        if layer.built:
+            # layer.kernel only exisits after layer.buid() call.
             assert self.layers[-1].units == layer.kernel.shape[0]
+        else:
+            self.built = False
 
         self.layers.append(layer)
 
