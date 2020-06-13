@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from itertools import count
+from tensorflow import keras
 
 
 # %%
@@ -160,18 +161,27 @@ class Layer(object):
 
     Attributes
     ---------
+    kernel : tf.Tensor
+        weihts matrix. Availbale only after Layer.bulid() was called.
+    bias : tf.Tensor
+        bias vector. Available only after Layer.build() and only if Layer.use_bias is
+        set to True.
     trainable_weights : iterable
         trainable weights of layer:
         W - weights associated with layer inputs. shape=(input, output)
         B - biases associated with layer inputs. shape=(1, outputs) (if use_bias=True)
+    use_bias : bool
+        indicator of whether to use bias term for computing pre-activations.
     activation : function
         activation of the layer.
+    built : bool
+        indicator of whether layer variables have been initialized.
     units : int
         number of unint is the layer.
     input_shape: int
         number of inputs to a unit.
-    l2_regularization : float
-        constant controling amount of regularization applied to weight matrix.
+    kernel_reguralizer : func
+        returns loss term for weight regularization.
         
     Methods
     -------
@@ -181,9 +191,14 @@ class Layer(object):
         Create variables for the layer.
     """
 
-    def __init__(
-            self, units, activation, kernel_initializer, bias_initializer,
-             input_shape=None, use_bias=True, l2_regularizatoin=0.0
+    def __init__(self,
+            units,
+            activation=keras.activations.linear,
+            kernel_initializer=keras.initializers.GlorotUniform(),
+            bias_initializer=tf.zeros,
+            input_shape=None,
+            use_bias=True,
+            kernel_reguralizer=None
         ):
         """
 
@@ -201,17 +216,24 @@ class Layer(object):
             number of inputs to a unit. The default is None
         use_bias : bool, optional
             wheter to use bias term when computing preactivation. The default is True.
-        l2_regularizatoin : float, optional
-            constant controling amount of regularization applied to weight matrix.
-            The default is 0.0.
+        kernel_reguralizer : func
+            returns loss term for weight regularization.
 
         Returns
         -------
         None.
 
         """
-
         
+        self.units = units
+        self.activation = activation
+        self.kernel_initializer = kernel_initializer
+        self.bias_initializer = bias_initializer
+        self.input_shape = input_shape
+        self.use_bias = use_bias
+        self.kernel_reguralizer = kernel_reguralizer
+        self.built = False
+
 
     def __call__(self, inputs):
         """
@@ -229,8 +251,19 @@ class Layer(object):
             activations of the layer
             shape=(sample size, number of units in the layer)
         """
+        
+        if not self.built:
+            self.built(inputs.shape)
+        else:
+            pass
+        
+        Z = inputs @ self.kernel
+        if self.use_bias:
+            Z += self.bias
+        else:
+            pass
 
-        activations = None
+        activations = self.activation(Z)
 
         return activations
 
@@ -262,13 +295,26 @@ class Layer(object):
         Parameters
         ----------
         input_shape : Collection
-            shape of a single input.
+            shape of an input.
 
         Returns
         -------
         None.
 
         """
+        input_dim = input_shape[1]
+        trainable_weights = []
+        self.kernel = self.kernel_initializer(shape=(input_dim, self.units))
+        trainable_weights.append(self.kernel)
+        
+        if self.use_bias:
+            self.bias = self.bias_initializer(shape=(1, self.units))
+            trainable_weights.append(self.bias)
+        else:
+            pass
+        
+        self.built = True
+        self.trainable_weights = trainable_weights
 
 
 # %%
