@@ -16,10 +16,50 @@ class ReLU(object):
     
     Methods
     -------
-    get_jacobian(X) -> jacobian
-        get jacobion with respect to preacivation Z, evaluated at X.
+    get_jacobians(X) -> jacobians
+        get batch jacobions with respect to preacivation Z, evaluated at X.
+        WARNING: 3D tensor.
     '''
-    pass
+    
+    def __call__(self, Z):
+        """
+        Applies ReLu activation to preactivations.
+
+        Parameters
+        ----------
+        Z : tf.Tensor
+            inputs.
+
+        Returns
+        -------
+        activations : tf.Tensor
+            inputs thransformed by ReLu activation function.
+
+        """
+        
+        return tf.math.maximum(Z, 0)
+    
+    
+    def get_jacobian(self, Z):
+        """
+        Compute jacobian of ReLu activation function with respect to input (Z),
+        evaluated at Z.
+
+        Parameters
+        ----------
+        Z : tf.Tensor
+            compute jocobian at Z.
+
+        Returns
+        -------
+        jacobian : tf.Tensor
+            jacobian ReLu computed at Z.
+
+        """
+        
+        partials = tf.math.maximum(tf.math.sign(Z), 0)
+        
+        return tf.linalg.diag(partials)
     
 
 # %%
