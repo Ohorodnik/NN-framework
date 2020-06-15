@@ -7,6 +7,8 @@ Created on Wed Jun 10 18:00:53 2020
 """
 
 import tensorflow as tf
+from tensorflow.linalg import diag
+from tensorflow.keras import activations
 
 # %%
 class ReLU(object):
@@ -18,12 +20,11 @@ class ReLU(object):
     -------
     get_jacobians(X) -> jacobians
         get batch jacobions with respect to preacivation Z, evaluated at X.
-        WARNING: 3D tensor.
     '''
     
     def __call__(self, Z):
         """
-        Applies ReLu activation to preactivations.
+        Applies elementwise ReLu activation.
 
         Parameters
         ----------
@@ -32,7 +33,7 @@ class ReLU(object):
 
         Returns
         -------
-        activations : tf.Tensor
+        A : tf.Tensor
             inputs thransformed by ReLu activation function.
 
         """
@@ -42,7 +43,7 @@ class ReLU(object):
     
     def get_jacobian(self, Z):
         """
-        Compute jacobian of ReLu activation function with respect to input (Z),
+        Computes batch jacobians of ReLu activation function with respect to input (Z),
         evaluated at Z.
 
         Parameters
@@ -53,7 +54,7 @@ class ReLU(object):
         Returns
         -------
         jacobian : tf.Tensor
-            jacobian ReLu computed at Z.
+            3D tensor of batch jacobians.
 
         """
         
@@ -70,25 +71,101 @@ class SoftMax(object):
     
     Methods
     -------
-    get_jacobian(X) -> jacobian
-        get jacobion with respect to preacivation Z, evaluated at X.
+    get_jacobian(Z) -> jacobian
+        get jacobion with respect to inputs Z, evaluated at Z.
     '''
-    pass
+    
+    def __call__(self, Z):
+        """
+        Applies softmax activation funcion.
+
+        Parameters
+        ----------
+        Z : tf.Tensor
+            inputs (logits).
+
+        Returns
+        -------
+        A : tf.Tensor
+            inputs transformed by softmax activation function (probabilities).
+        """
+        
+        return activations.softmax(Z)
+    
+    
+    def get_jacobian(self, Z):
+        '''
+        computes batch jacobians of sofmax acvivation fuction, evaluated at Z.
+
+        Parameters
+        ----------
+        Z : tf.Tensor
+            inputs.
+
+        Returns
+        -------
+        jacobian : tf.Tesnor
+            3D tensor of batch jacobians.
+
+        '''
+        
+        A = self(Z)
+        
+        return (
+            tf.linalg.diag(A)
+            - tf.reshape(A, (-1, Z.shape[1], 1)) @ tf.reshape(A, (-1, 1, Z.shape[1]))
+        )
 
 
 # %%
 class Sigmoid(object):
     '''
     Sigmoid activation
-    A = 1 / (1 + e^Z)
+    A = 1 / (1 + e^-Z)
     
     Methods
     -------
     get_jacobian(X) -> jacobian
         get jacobion with respect to preacivation Z, evaluated at X.
     '''
-    pass
+    
+    def __call__(self, Z):
+        """
+        Applies elementwise sigmoid activation function.
 
+        Parameters
+        ----------
+        Z : tf.Tensor
+            inputs.
 
+        Returns
+        -------
+        A : tf.Tensor
+            inputs transformed by sigmoid activation function.
+
+        """
+        
+        return activations.sigmoid(Z)
+    
+    
+    def get_jacobian(self, Z):
+        """
+        computes batch jacobians of sigmoid acvivation fuction, evaluated at Z.
+
+        Parameters
+        ----------
+        Z : tf.Tensor
+            inputs.
+
+        Returns
+        -------
+        jacobian : tf.Tesnor
+            3D tensor of batch jacobians.
+
+        """
+        
+        A = self(Z)
+        
+        return diag(A * (1 - A))
 # %%
 

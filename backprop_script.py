@@ -7,16 +7,18 @@ Created on Sun Jun 14 19:42:24 2020
 """
 
 import tensorflow as tf
-from activations import ReLU
+from activations import ReLU, SoftMax, Sigmoid
 from tensorflow import keras
 
 # %%
 
 my_activations = [
         ReLU(),
+        Sigmoid()
         ]
 tf_activations = [
         keras.activations.relu,
+        keras.activations.sigmoid
         ]
 
 for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activations)):
@@ -37,3 +39,21 @@ for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activa
     )
     
     assert (my_dZ == tf_dZ).numpy().all()
+    
+# %%
+## testting jacobians
+X = tf.Variable(tf.random.normal(shape=(100, 5)) * i**(1/2))
+
+relu = ReLU()
+my_A = relu(X)
+
+with tf.GradientTape() as tape:
+    tf_A = keras.activations.relu(X)
+
+assert (my_A == tf_A).numpy().all()
+
+tf_dZ = tape.batch_jacobian(target=tf_A, source=X)
+
+my_dZ = relu.get_jacobian(X)
+
+assert (my_dZ == tf_dZ).numpy().all()
