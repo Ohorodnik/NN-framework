@@ -6,9 +6,12 @@ Created on Sun Jun 14 19:42:24 2020
 @author: vitalii
 """
 
+import numpy as np
 import tensorflow as tf
-from activations import ReLU, SoftMax, Sigmoid
+from nn.activations import ReLU, SoftMax, Sigmoid
 from tensorflow import keras
+from tensorflow.random import uniform, normal
+from tensorflow.keras import losses
 
 # %%
 
@@ -29,7 +32,7 @@ for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activa
     with tf.GradientTape() as tape:
         tf_A = tf_activation(X)
     
-    assert (my_A == tf_A).numpy().all()
+    assert np.allclose(my_A, tf_A)
     
     tf_dZ = tape.gradient(target=tf_A, sources=[X])[0]
     
@@ -38,22 +41,27 @@ for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activa
         shape=X.shape
     )
     
-    assert (my_dZ == tf_dZ).numpy().all()
+    assert np.allclose(my_dZ, tf_dZ)
     
 # %%
 ## testting jacobians
-X = tf.Variable(tf.random.normal(shape=(100, 5)) * i**(1/2))
+X = tf.Variable(tf.random.normal(shape=(100, 5)))
 
-relu = ReLU()
-my_A = relu(X)
+softmax = SoftMax()
+my_A = softmax(X)
 
 with tf.GradientTape() as tape:
-    tf_A = keras.activations.relu(X)
+    tf_A = keras.activations.softmax(X)
 
-assert (my_A == tf_A).numpy().all()
+assert np.allclose(my_A, tf_A)
 
 tf_dZ = tape.batch_jacobian(target=tf_A, source=X)
 
-my_dZ = relu.get_jacobian(X)
+my_dZ = softmax.get_jacobian(X)
 
-assert (my_dZ == tf_dZ).numpy().all()
+assert np.allclose(my_dZ, tf_dZ)
+
+# %%
+shape = (4, 2)
+y_true = tf.math.round(softmax(normal(shape)))
+logits = normal(shape)

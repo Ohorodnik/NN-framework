@@ -7,10 +7,10 @@ Created on Sat Jun  6 16:17:55 2020
 """
 
 import tensorflow as tf
-import optimization
 import matplotlib.pyplot as plt
 from sklearn import datasets
-from utils import train, plot_decision
+from nn.utils import train, plot_decision
+from nn import optimization
 import datetime
 
 tf.random.set_seed(42)
