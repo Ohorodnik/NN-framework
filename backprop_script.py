@@ -9,12 +9,13 @@ Created on Sun Jun 14 19:42:24 2020
 import numpy as np
 import tensorflow as tf
 from nn.activations import ReLU, SoftMax, Sigmoid
+from nn.losses import CategoricalCrossentropy, BinaryCrossentropy, MeanSquaredError
 from tensorflow import keras
 from tensorflow.random import uniform, normal
 from tensorflow.keras import losses
 
 # %%
-
+# Elementwice activations
 my_activations = [
         ReLU(),
         Sigmoid()
@@ -44,7 +45,7 @@ for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activa
     assert np.allclose(my_dZ, tf_dZ)
     
 # %%
-## testting jacobians
+# Softmax activations
 X = tf.Variable(tf.random.normal(shape=(100, 5)))
 
 softmax = SoftMax()
@@ -62,6 +63,72 @@ my_dZ = softmax.get_jacobian(X)
 assert np.allclose(my_dZ, tf_dZ)
 
 # %%
-shape = (4, 2)
+# Categorical loss with logits output.
+
+shape = (100, 4)
 y_true = tf.math.round(softmax(normal(shape)))
 logits = normal(shape)
+
+my_loss = CategoricalCrossentropy(from_logits=True)
+tf_loss = losses.CategoricalCrossentropy(from_logits=True)
+
+with tf.GradientTape(persistent=True) as tape:
+    tape.watch(logits)
+    loss_tf = tf_loss(y_true=y_true, y_pred=logits)
+    
+loss_my = my_loss(y_true, y_pred=logits)
+
+assert np.allclose(loss_my, loss_tf)
+    
+dz_tf = tape.gradient(loss_tf, [logits])[0]
+dz_my = my_loss.get_gradient(y_true, logits)
+
+assert np.allclose(dz_tf, dz_my)
+
+# %%
+# Categorical loss with probability output.
+
+shape = (100, 5)
+y_true = tf.math.round(softmax(normal(shape)))
+logits = normal(shape)
+
+my_loss = CategoricalCrossentropy(from_logits=False)
+tf_loss = losses.KLDivergence()
+
+with tf.GradientTape(persistent=True) as tape:
+    tape.watch(logits)
+    pred = softmax(logits)
+    loss_tf = tf_loss(y_true=y_true, y_pred=pred)
+    
+loss_my = my_loss(y_true, y_pred=pred)
+
+#assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
+    
+dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])
+da_my = my_loss.get_gradient(y_true, pred)
+
+assert np.allclose(da_my, da_tf, rtol=1e-05, atol=1e-08)
+
+# %%
+# Binary loss with probability output.
+
+shape = (500, 1)
+y_true = tf.math.round(softmax(normal(shape)))
+logits = normal(shape)
+
+my_loss = BinaryCrossentropy()
+tf_loss = losses.BinaryCrossentropy()
+
+with tf.GradientTape(persistent=True) as tape:
+    tape.watch(logits)
+    pred = keras.activations.sigmoid(logits)
+    loss_tf = tf_loss(y_true=y_true, y_pred=pred)
+    
+loss_my = my_loss(y_true, y_pred=pred)
+
+assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
+    
+dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])
+da_my = my_loss.get_gradient(y_true, pred)
+
+assert np.allclose(da_my, da_tf, rtol=1e-05, atol=1e-08)

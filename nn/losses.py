@@ -7,6 +7,7 @@ Created on Fri Jun 12 15:22:29 2020
 """
 
 import tensorflow as tf
+from tensorflow import keras
 
 
 # %%
@@ -20,7 +21,51 @@ class BinaryCrossentropy(object):
     get_gradient(A) -> gradinet
         get gradient
     '''
-    pass
+    
+    
+    def __call__(self, y_true, y_pred):
+        """
+        Calculate estimation of loss over mini-batch.
+
+        Parameters
+        ----------
+        y_true : tf.Tensor
+            true labels.
+        y_pred : tf.Tensor
+            predicted labels.
+
+        Returns
+        -------
+        loss : float
+            estimation of loss. 
+            
+        """
+        
+        return - tf.math.reduce_mean(
+            y_true * tf.math.log(y_pred)
+            + (1 - y_true) * tf.math.log(1 - y_pred)
+        )
+    
+    
+    def get_gradient(self, y_true, y_pred):
+        """
+        Gradient of loss with respect to predicted labels.
+
+        Parameters
+        ----------
+        y_true : tf.Tensor
+            true labels.
+        y_pred : tf.Tensor
+            predicted lables.
+
+        Returns
+        -------
+        gradient : tf.Tensor
+            gradient of loss evaluated at predicted labels.
+
+        """
+        
+        return (y_pred - y_true) / (y_pred - y_pred**2) / y_true.shape[0]
 
 
 # %%
@@ -74,9 +119,8 @@ class CategoricalCrossentropy(object):
         else:
             A = y_pred
             
-        return tf.math.reduce_sum(
-            -1 / y_true.shape[0]
-            * y_true * tf.math.log(A)
+        return - tf.math.reduce_mean(
+            (y_true + 1e-07) * tf.math.log(A)
         )
         
     
@@ -100,9 +144,9 @@ class CategoricalCrossentropy(object):
         """
         
         if self.from_logits:
-            return y_pred - y_true
+            return (tf.keras.activations.softmax(y_pred) - y_true) / y_true.shape[0]
         else:
-            return -1 / y_true.shape[0] * y_true / y_pred
+            return -1 / y_true.shape[0] * (y_true + 1e-07) / y_pred
         
 
 
