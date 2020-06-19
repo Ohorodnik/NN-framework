@@ -102,6 +102,7 @@ with tf.GradientTape(persistent=True) as tape:
     
 loss_my = my_loss(y_true, y_pred=pred)
 
+# float point comparison + numerical stability issues
 #assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
     
 dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])

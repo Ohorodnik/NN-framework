@@ -119,8 +119,9 @@ class CategoricalCrossentropy(object):
         else:
             A = y_pred
             
-        return - tf.math.reduce_mean(
-            (y_true + 1e-07) * tf.math.log(A)
+        return - tf.math.reduce_sum(
+            1 / y_true.shape[0]
+            * (y_true + 1e-07) * tf.math.log(A)
         )
         
     
