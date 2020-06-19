@@ -81,7 +81,7 @@ loss_my = my_loss(y_true, y_pred=logits)
 assert np.allclose(loss_my, loss_tf)
     
 dz_tf = tape.gradient(loss_tf, [logits])[0]
-dz_my = my_loss.get_gradient(y_true, logits)
+dz_my = my_loss.get_gradients(y_true, logits)
 
 assert np.allclose(dz_tf, dz_my)
 
@@ -106,7 +106,7 @@ loss_my = my_loss(y_true, y_pred=pred)
 #assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
     
 dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])
-da_my = my_loss.get_gradient(y_true, pred)
+da_my = my_loss.get_gradients(y_true, pred)
 
 assert np.allclose(da_my, da_tf, rtol=1e-05, atol=1e-08)
 
@@ -130,6 +130,29 @@ loss_my = my_loss(y_true, y_pred=pred)
 assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
     
 dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])
-da_my = my_loss.get_gradient(y_true, pred)
+da_my = my_loss.get_gradients(y_true, pred)
 
 assert np.allclose(da_my, da_tf, rtol=1e-05, atol=1e-08)
+
+# %%
+# MSE losss
+
+shape = (500, 1)
+y_true = normal(shape)
+y_pred = normal(shape)
+
+my_loss = MeanSquaredError()
+tf_loss = losses.MeanSquaredError()
+
+with tf.GradientTape() as tape:
+    tape.watch(y_pred)
+    loss_tf = tf_loss(y_true, y_pred)
+
+loss_my = my_loss(y_true, y_pred)
+
+assert np.allclose(loss_my, loss_tf)
+    
+da_tf = tape.gradient(loss_tf, [y_pred])[0]
+da_my = my_loss.get_gradients(y_true, y_pred)
+
+assert np.allclose(da_tf, da_my)

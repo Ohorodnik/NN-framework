@@ -18,8 +18,8 @@ class BinaryCrossentropy(object):
     
     Methods
     -------
-    get_gradient(A) -> gradinet
-        get gradient
+    get_gradients(A) -> gradinet
+        gradients of the loss
     '''
     
     
@@ -47,9 +47,9 @@ class BinaryCrossentropy(object):
         )
     
     
-    def get_gradient(self, y_true, y_pred):
+    def get_gradients(self, y_true, y_pred):
         """
-        Gradient of loss with respect to predicted labels.
+        Per-sample gradients of loss with respect to predicted labels. 
 
         Parameters
         ----------
@@ -60,8 +60,8 @@ class BinaryCrossentropy(object):
 
         Returns
         -------
-        gradient : tf.Tensor
-            gradient of loss evaluated at predicted labels.
+        gradients : tf.Tensor
+            gradients of loss evaluated at predicted labels. (rows)
 
         """
         
@@ -126,9 +126,9 @@ class CategoricalCrossentropy(object):
         
     
     
-    def get_gradient(self, y_true, y_pred):
+    def get_gradients(self, y_true, y_pred):
         """
-        Gradient of loss with respect to predicted labels.
+        Per-sample gradients of the loss with respect to predicted labels.
 
         Parameters
         ----------
@@ -139,8 +139,8 @@ class CategoricalCrossentropy(object):
 
         Returns
         -------
-        gradient : tf.Tensor
-            gradient of loss evaluated at predicted labels.
+        gradients : tf.Tensor
+            gradients of the loss evaluated at predicted labels. (rows)
 
         """
         
@@ -159,4 +159,46 @@ class MeanSquaredError(object):
     get_gradient(A) -> gradinet
         get gradient
     '''
-    pass
+    
+    
+    def __call__(self, y_true, y_pred):
+        """
+        Calcaulate estimate of loss over mini-bathc.
+
+        Parameters
+        ----------
+        y_true : tf.Tensor
+            true values.
+        y_pred : tf.Tensor
+            estimated values.
+
+        Returns
+        -------
+        loss : float
+            loss over mini-batch.
+
+        """
+        
+        return tf.math.reduce_mean(
+            (y_true - y_pred)**2    
+        )
+    
+    def get_gradients(self, y_true, y_pred):
+        """
+        Per-sample gradients of MSE loss with respect to y_pred.
+
+        Parameters
+        ----------
+        y_true : tf.Tensor
+            true values.
+        y_per : tf.Tensor
+            estimated values.
+
+        Returns
+        -------
+        gradients : tf.Tensor
+            gradients of the loss with respect to y_pred. (rows)
+
+        """
+        
+        return - 2 / ( y_true.shape[0]) * (y_true - y_pred)
