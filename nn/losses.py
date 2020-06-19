@@ -18,7 +18,7 @@ class BinaryCrossentropy(object):
     
     Methods
     -------
-    get_gradients(A) -> gradinet
+    get_gradient(A) -> gradinet
         gradients of the loss
     '''
     
@@ -47,7 +47,7 @@ class BinaryCrossentropy(object):
         )
     
     
-    def get_gradients(self, y_true, y_pred):
+    def get_gradient(self, y_true, y_pred):
         """
         Per-sample gradients of loss with respect to predicted labels. 
 
@@ -126,7 +126,7 @@ class CategoricalCrossentropy(object):
         
     
     
-    def get_gradients(self, y_true, y_pred):
+    def get_gradient(self, y_true, y_pred):
         """
         Per-sample gradients of the loss with respect to predicted labels.
 
@@ -183,7 +183,7 @@ class MeanSquaredError(object):
             (y_true - y_pred)**2    
         )
     
-    def get_gradients(self, y_true, y_pred):
+    def get_gradient(self, y_true, y_pred):
         """
         Per-sample gradients of MSE loss with respect to y_pred.
 

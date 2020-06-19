@@ -11,7 +11,7 @@ import tensorflow as tf
 from nn.activations import ReLU, SoftMax, Sigmoid
 from nn.losses import CategoricalCrossentropy, BinaryCrossentropy, MeanSquaredError
 from tensorflow import keras
-from tensorflow.random import uniform, normal
+from tensorflow.random import normal
 from tensorflow.keras import losses
 
 # %%
@@ -81,14 +81,14 @@ loss_my = my_loss(y_true, y_pred=logits)
 assert np.allclose(loss_my, loss_tf)
     
 dz_tf = tape.gradient(loss_tf, [logits])[0]
-dz_my = my_loss.get_gradients(y_true, logits)
+dz_my = my_loss.get_gradient(y_true, logits)
 
 assert np.allclose(dz_tf, dz_my)
 
 # %%
 # Categorical loss with probability output.
 
-shape = (100, 5)
+shape = (200, 2)
 y_true = tf.math.round(softmax(normal(shape)))
 logits = normal(shape)
 
@@ -106,9 +106,21 @@ loss_my = my_loss(y_true, y_pred=pred)
 #assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
     
 dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])
-da_my = my_loss.get_gradients(y_true, pred)
+da_my = my_loss.get_gradient(y_true, pred)
 
 assert np.allclose(da_my, da_tf, rtol=1e-05, atol=1e-08)
+
+# Integration with softmax test
+
+# reshape to match batch jacobian shape
+da = tf.reshape(da_my, shape=(shape[0], 1, shape[1]))
+
+dz = da @ softmax.get_jacobian(logits)
+
+# reshape back to matrix
+dz = tf.reshape(dz, shape)
+
+assert np.allclose(dz, dz_tf)
 
 # %%
 # Binary loss with probability output.
@@ -130,29 +142,58 @@ loss_my = my_loss(y_true, y_pred=pred)
 assert np.allclose(loss_my, loss_tf, rtol=1e-05, atol=1e-08)
     
 dz_tf, da_tf = tape.gradient(loss_tf, [logits, pred])
-da_my = my_loss.get_gradients(y_true, pred)
+da_my = my_loss.get_gradient(y_true, pred)
 
 assert np.allclose(da_my, da_tf, rtol=1e-05, atol=1e-08)
+
+# sigmoid integration test
+
+sigmoid = Sigmoid()
+
+# reshape to match batch jacobian shape
+da = tf.reshape(da_my, shape=(shape[0], 1, shape[1]))
+
+dz = da @ sigmoid.get_jacobian(logits)
+
+# reshape back to matrix
+dz = tf.reshape(dz, shape)
+
+assert np.allclose(dz, dz_tf)
 
 # %%
 # MSE losss
 
 shape = (500, 1)
 y_true = normal(shape)
-y_pred = normal(shape)
+inputs = normal(shape)
+
+relu = ReLU()
 
 my_loss = MeanSquaredError()
 tf_loss = losses.MeanSquaredError()
 
 with tf.GradientTape() as tape:
-    tape.watch(y_pred)
+    tape.watch(inputs)
+    y_pred = relu(inputs)
     loss_tf = tf_loss(y_true, y_pred)
 
 loss_my = my_loss(y_true, y_pred)
 
 assert np.allclose(loss_my, loss_tf)
     
-da_tf = tape.gradient(loss_tf, [y_pred])[0]
-da_my = my_loss.get_gradients(y_true, y_pred)
+dz_tf, da_tf = tape.gradient(loss_tf, [inputs, y_pred])
+da_my = my_loss.get_gradient(y_true, y_pred)
 
 assert np.allclose(da_tf, da_my)
+
+# relu integration test
+
+# reshape to match batch jacobian shape
+da = tf.reshape(da_my, shape=(shape[0], 1, shape[1]))
+
+dz = da @ relu.get_jacobian(inputs)
+
+# reshape back to matrix
+dz = tf.reshape(dz, shape)
+
+assert np.allclose(dz, dz_tf)
