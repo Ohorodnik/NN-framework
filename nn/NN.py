@@ -1,7 +1,9 @@
 import tensorflow as tf
 import numpy as np
+
 from itertools import count
 from tensorflow import keras
+from nn import activations
 
 
 # %%
@@ -134,7 +136,7 @@ class NeuralNet(object):
     
     def backprop(self, dY):
         """
-        Backpropagete gdatient of the loss through the network.
+        Backpropagete gratient of the loss through the network.
 
         Parameters
         ----------
@@ -149,7 +151,12 @@ class NeuralNet(object):
 
         """
         
-        gradients = None
+        gradients = []
+        dA = dY
+        
+        for layer in reversed(self.layers):
+            dA, trainable = layer.backprop(dA)
+            gradients += trainable
         
         return gradients
 
@@ -193,7 +200,7 @@ class Layer(object):
 
     def __init__(self,
             units,
-            activation=keras.activations.linear,
+            activation=activations.Linear(),
             kernel_initializer=keras.initializers.GlorotUniform(),
             bias_initializer=tf.zeros,
             input_shape=None,
@@ -257,11 +264,14 @@ class Layer(object):
         else:
             pass
         
+        self.inputs = inputs
+        
         Z = inputs @ self.kernel
         if self.use_bias:
             Z += self.bias
         else:
             pass
+        self.Z = Z
 
         activations = self.activation(Z)
 
@@ -279,13 +289,26 @@ class Layer(object):
         Returns
         -------
         gradients : iterable
-            gradients of the loss with respect to trainable weights of layer
+            collection of the form:
+                [dA, [d-trainable]]
+            where:
+            dA - gradient with respect to inputs.
+            [d-trainable] - gradients with respect to all trainable parameters.
 
         '''
         
-        gradients = None
+        dZ = tf.reshape(
+            dA[:, tf.newaxis, :] @ self.activation.get_jacobian(self.Z),
+            shape=dA.shape
+        )
         
-        return gradients
+        dB = tf.math.reduce_sum(dZ, axis=0, keepdims=True)
+        
+        dW = tf.matmul(self.inputs, dZ, transpose_a=True)
+        
+        dX = tf.matmul(dZ, self.kernel, transpose_b=True)
+        
+        return [dX, [dW, dB]]
     
     
     def build(self, input_shape):

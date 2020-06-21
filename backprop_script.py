@@ -8,7 +8,7 @@ Created on Sun Jun 14 19:42:24 2020
 
 import numpy as np
 import tensorflow as tf
-from nn.activations import ReLU, SoftMax, Sigmoid
+from nn.activations import ReLU, SoftMax, Sigmoid, Linear
 from nn.losses import CategoricalCrossentropy, BinaryCrossentropy, MeanSquaredError
 from tensorflow import keras
 from tensorflow.random import normal
@@ -18,19 +18,22 @@ from tensorflow.keras import losses
 # Elementwice activations
 my_activations = [
         ReLU(),
-        Sigmoid()
+        Sigmoid(),
+        Linear()
         ]
 tf_activations = [
         keras.activations.relu,
-        keras.activations.sigmoid
+        keras.activations.sigmoid,
+        keras.activations.linear
         ]
 
 for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activations)):
-    X = tf.Variable(tf.random.normal(shape=(100, 5)) * i**(1/2))
+    X = tf.constant(tf.random.normal(shape=(100, 5)) * i**(1/2))
     
     my_A = my_activation(X)
     
     with tf.GradientTape() as tape:
+        tape.watch(X)
         tf_A = tf_activation(X)
     
     assert np.allclose(my_A, tf_A)

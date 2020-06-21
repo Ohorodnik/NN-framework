@@ -169,3 +169,22 @@ class Sigmoid(object):
         return diag(A * (1 - A))
 # %%
 
+class Linear(object):
+    """
+    Linear activation function
+    
+    Methods
+    -------
+    get_jacobian(Z) -> jacobian
+        computes bath jacobians.
+    
+    """
+    
+    def __call__(self, Z):
+        
+        return Z
+    
+    
+    def get_jacobian(self, Z):
+        
+        return tf.eye(Z.shape[1], batch_shape=Z.shape[:1])
