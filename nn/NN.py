@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 
-from itertools import count
 from tensorflow import keras
 from nn import activations
 
@@ -43,7 +42,7 @@ class NeuralNet(object):
             pass
                 
         
-        self.layers = layers
+        self.layers = layers[:]
         self.trainable_weights = []
         self.built = layers_built
 
@@ -156,7 +155,7 @@ class NeuralNet(object):
         
         for layer in reversed(self.layers):
             dA, trainable = layer.backprop(dA)
-            gradients += trainable
+            gradients = [*trainable, *gradients]
         
         return gradients
 
@@ -327,11 +326,13 @@ class Layer(object):
         """
         input_dim = input_shape[1]
         trainable_weights = []
-        self.kernel = self.kernel_initializer(shape=(input_dim, self.units))
+        self.kernel = tf.Variable(
+            self.kernel_initializer(shape=(input_dim, self.units))
+            )
         trainable_weights.append(self.kernel)
         
         if self.use_bias:
-            self.bias = self.bias_initializer(shape=(1, self.units))
+            self.bias = tf.Variable(self.bias_initializer(shape=(1, self.units)))
             trainable_weights.append(self.bias)
         else:
             pass

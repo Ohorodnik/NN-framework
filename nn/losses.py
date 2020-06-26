@@ -40,7 +40,12 @@ class BinaryCrossentropy(object):
             estimation of loss. 
             
         """
-        y_true = tf.cast(y_true, tf.float32)
+        
+        
+        
+        y_true = tf.reshape(tf.cast(y_true, tf.float32), (-1, 1))
+        
+        assert y_true.shape == y_pred.shape
         
         return - tf.math.reduce_mean(
             y_true * tf.math.log(y_pred)
@@ -66,7 +71,9 @@ class BinaryCrossentropy(object):
 
         """
         
-        y_true = tf.cast(y_true, tf.float32)
+        y_true = tf.reshape(tf.cast(y_true, tf.float32), (-1, 1))
+        
+        assert y_true.shape == y_pred.shape
         
         return (y_pred - y_true) / (y_pred - y_pred**2) / y_true.shape[0]
 
@@ -95,6 +102,7 @@ class CategoricalCrossentropy(object):
 
         """
         
+        
         self.from_logits = from_logits
     
     
@@ -116,6 +124,8 @@ class CategoricalCrossentropy(object):
             estimation of loss. 
 
         """
+        
+        assert y_true.shape == y_pred.shape
         
         y_true = tf.cast(y_true, tf.float32)
         
@@ -148,6 +158,8 @@ class CategoricalCrossentropy(object):
             gradients of the loss evaluated at predicted labels. (rows)
 
         """
+        
+        assert y_true.shape == y_pred.shape
         
         y_true = tf.cast(y_true, tf.float32)
         
@@ -186,6 +198,10 @@ class MeanSquaredError(object):
 
         """
         
+        y_true = tf.reshape(y_true, (-1, 1))
+        
+        assert y_true.shape == y_pred.shape
+        
         return tf.math.reduce_mean(
             (y_true - y_pred)**2    
         )
@@ -207,5 +223,9 @@ class MeanSquaredError(object):
             gradients of the loss with respect to y_pred. (rows)
 
         """
+        
+        y_true = tf.reshape(y_true, (-1, 1))
+        
+        assert y_true.shape == y_pred.shape
         
         return - 2 / ( y_true.shape[0]) * (y_true - y_pred)
