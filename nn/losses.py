@@ -40,6 +40,7 @@ class BinaryCrossentropy(object):
             estimation of loss. 
             
         """
+        y_true = tf.cast(y_true, tf.float32)
         
         return - tf.math.reduce_mean(
             y_true * tf.math.log(y_pred)
@@ -64,6 +65,8 @@ class BinaryCrossentropy(object):
             gradients of loss evaluated at predicted labels. (rows)
 
         """
+        
+        y_true = tf.cast(y_true, tf.float32)
         
         return (y_pred - y_true) / (y_pred - y_pred**2) / y_true.shape[0]
 
@@ -114,6 +117,8 @@ class CategoricalCrossentropy(object):
 
         """
         
+        y_true = tf.cast(y_true, tf.float32)
+        
         if self.from_logits:
             A = tf.keras.activations.softmax(y_pred)
         else:
@@ -143,6 +148,8 @@ class CategoricalCrossentropy(object):
             gradients of the loss evaluated at predicted labels. (rows)
 
         """
+        
+        y_true = tf.cast(y_true, tf.float32)
         
         if self.from_logits:
             return (tf.keras.activations.softmax(y_pred) - y_true) / y_true.shape[0]
