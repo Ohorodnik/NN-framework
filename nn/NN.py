@@ -197,7 +197,7 @@ class Layer(object):
         bias_initializer=tf.zeros,
         input_shape=None,
         use_bias=True,
-        kernel_reguralizer=None
+        kernel_reguralizer=None,
     ):
         """
 
@@ -269,7 +269,7 @@ class Layer(object):
         return activations
 
     def backprop(self, dA):
-        '''
+        """
         Compute backpropagation step.
 
         Parameters
@@ -286,11 +286,10 @@ class Layer(object):
             dA - gradient with respect to inputs.
             [d-trainable] - gradients with respect to all trainable parameters.
 
-        '''
+        """
 
         dZ = tf.reshape(
-            dA[:, tf.newaxis, :] @ self.activation.get_jacobian(self.Z),
-            shape=dA.shape
+            dA[:, tf.newaxis, :] @ self.activation.get_jacobian(self.Z), shape=dA.shape
         )
 
         dB = tf.math.reduce_sum(dZ, axis=0, keepdims=True)
@@ -319,7 +318,7 @@ class Layer(object):
         trainable_weights = []
         self.kernel = tf.Variable(
             self.kernel_initializer(shape=(input_dim, self.units))
-            )
+        )
         trainable_weights.append(self.kernel)
 
         if self.use_bias:

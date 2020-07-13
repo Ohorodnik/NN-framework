@@ -18,19 +18,17 @@ from tensorflow.keras import losses
 # %%
 # Elementwice activations
 def test_elementwice_activations():
-    my_activations = [
-            ReLU(),
-            Sigmoid(),
-            Linear()
-            ]
+    my_activations = [ReLU(), Sigmoid(), Linear()]
     tf_activations = [
-            keras.activations.relu,
-            keras.activations.sigmoid,
-            keras.activations.linear
-            ]
+        keras.activations.relu,
+        keras.activations.sigmoid,
+        keras.activations.linear,
+    ]
 
-    for i, (my_activation, tf_activation) in enumerate(zip(my_activations, tf_activations)):
-        X = tf.constant(tf.random.normal(shape=(100, 5)) * i**(1/2))
+    for i, (my_activation, tf_activation) in enumerate(
+        zip(my_activations, tf_activations)
+    ):
+        X = tf.constant(tf.random.normal(shape=(100, 5)) * i ** (1 / 2))
 
         my_A = my_activation(X)
 
@@ -43,8 +41,7 @@ def test_elementwice_activations():
         tf_dZ = tape.gradient(target=tf_A, sources=[X])[0]
 
         my_dZ = tf.reshape(
-            tf.ones(shape=(1, 5)) @ my_activation.get_jacobian(X),
-            shape=X.shape
+            tf.ones(shape=(1, 5)) @ my_activation.get_jacobian(X), shape=X.shape
         )
 
         assert np.allclose(my_dZ, tf_dZ)
@@ -212,10 +209,11 @@ def test_mse_loss():
 
     assert np.allclose(dz, dz_tf)
 
+
 # %%
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     test_mse_loss()
     test_binary_loss()
@@ -224,4 +222,4 @@ if __name__ == '__main__':
     test_softmax_activation()
     test_elementwice_activations()
 
-    print('All ok')
+    print("All ok")

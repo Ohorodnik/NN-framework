@@ -21,9 +21,13 @@ tf.random.set_seed(42)
 
 loss = losses.BinaryCrossentropy()
 
-dataset = tf.data.Dataset.from_tensor_slices(
-    (tf.cast(X, dtype=tf.float32), tf.cast(Y, dtype=tf.int32))
-    ).shuffle(X.shape[0]).batch(64)
+dataset = (
+    tf.data.Dataset.from_tensor_slices(
+        (tf.cast(X, dtype=tf.float32), tf.cast(Y, dtype=tf.int32))
+    )
+    .shuffle(X.shape[0])
+    .batch(64)
+)
 
 
 clf = NN.NeuralNet()
@@ -38,7 +42,7 @@ train(
     loss=loss,
     optimizer=optimization.Adam(),
     epochs=50,
-    use_tape=False
+    use_tape=False,
 )
 
 plot_decision(clf, X, Y)

@@ -16,7 +16,7 @@ def plot_decision(model, features, labels):
 
     ax = plt.subplot()
 
-    ax.contourf(xx, yy, Z, cmap=plt.cm.Spectral, alpha=.8)
+    ax.contourf(xx, yy, Z, cmap=plt.cm.Spectral, alpha=0.8)
     rng = np.random.default_rng(seed=42)
     indx = np.arange(start=0, stop=features.shape[0], step=1)
     rng.shuffle(indx)
@@ -44,7 +44,9 @@ def train(NN, dataset, loss, optimizer, epochs, print_period=1, use_tape=True):
                 loss_history.append(current_loss)
 
             if use_tape:
-                gradients = tape.gradient(target=current_loss, sources=NN.trainable_weights)
+                gradients = tape.gradient(
+                    target=current_loss, sources=NN.trainable_weights
+                )
             else:
                 dY = loss.get_gradient(y_true=batch_labels, y_pred=predictions)
                 gradients = NN.backprop(dY)
@@ -57,7 +59,7 @@ def train(NN, dataset, loss, optimizer, epochs, print_period=1, use_tape=True):
             pass
 
     plt.plot(np.array(loss_history))
-    plt.ylabel('Loss')
-    plt.xlabel('Batch #')
+    plt.ylabel("Loss")
+    plt.xlabel("Batch #")
     plt.ylim([0, 1.3])
     plt.show()

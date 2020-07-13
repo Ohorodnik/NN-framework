@@ -172,34 +172,36 @@ class Adam(BaseGradientDescent):
 
         var_id = id(var)
 
-        first_moment = self._first_moments.setdefault(
-            var_id,
-            tf.zeros_like(grad)
-            )
+        first_moment = self._first_moments.setdefault(var_id, tf.zeros_like(grad))
 
         assert grad.shape == first_moment.shape
 
-        second_moment = self._second_moments.setdefault(
-            var_id,
-            tf.zeros_like(grad)
-            )
+        second_moment = self._second_moments.setdefault(var_id, tf.zeros_like(grad))
 
         assert grad.shape == second_moment.shape
 
-        biased_first_moment = (self.first_moment_rate * first_moment
-                               + (1 - self.first_moment_rate) * grad)
-        biased_second_moment = (self.second_moment_rate * second_moment
-                                + (1 - self.second_moment_rate) * grad**2)
-        corrected_first_moment = (biased_first_moment
-                                  / (1 - self.first_moment_rate**self._step))
-        corrected_second_moment = (biased_second_moment
-                                   / (1 - self.second_moment_rate**self._step))
+        biased_first_moment = (
+            self.first_moment_rate * first_moment + (1 - self.first_moment_rate) * grad
+        )
+        biased_second_moment = (
+            self.second_moment_rate * second_moment
+            + (1 - self.second_moment_rate) * grad ** 2
+        )
+        corrected_first_moment = biased_first_moment / (
+            1 - self.first_moment_rate ** self._step
+        )
+        corrected_second_moment = biased_second_moment / (
+            1 - self.second_moment_rate ** self._step
+        )
 
         self._first_moments[var_id] = biased_first_moment
         self._second_moments[var_id] = biased_second_moment
 
-        return (- self.learning_rate * corrected_first_moment
-                / (corrected_second_moment**(1/2) + self.num_stability))
+        return (
+            -self.learning_rate
+            * corrected_first_moment
+            / (corrected_second_moment ** (1 / 2) + self.num_stability)
+        )
 
 
 # %%

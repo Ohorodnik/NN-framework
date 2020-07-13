@@ -11,7 +11,7 @@ import tensorflow as tf
 
 # %%
 class BinaryCrossentropy(object):
-    '''
+    """
     Cross-entropy loss for binary classification
     loss = -mean(Y * ln(A) + (1 - Y) * ln(1 - A))
 
@@ -19,7 +19,7 @@ class BinaryCrossentropy(object):
     -------
     get_gradient(A) -> gradinet
         gradients of the loss
-    '''
+    """
 
     def __call__(self, y_true, y_pred):
         """
@@ -43,9 +43,8 @@ class BinaryCrossentropy(object):
 
         assert y_true.shape == y_pred.shape
 
-        return - tf.math.reduce_mean(
-            y_true * tf.math.log(y_pred)
-            + (1 - y_true) * tf.math.log(1 - y_pred)
+        return -tf.math.reduce_mean(
+            y_true * tf.math.log(y_pred) + (1 - y_true) * tf.math.log(1 - y_pred)
         )
 
     def get_gradient(self, y_true, y_pred):
@@ -70,17 +69,17 @@ class BinaryCrossentropy(object):
 
         assert y_true.shape == y_pred.shape
 
-        return (y_pred - y_true) / (y_pred - y_pred**2) / y_true.shape[0]
+        return (y_pred - y_true) / (y_pred - y_pred ** 2) / y_true.shape[0]
 
 
 # %%
 class CategoricalCrossentropy(object):
-    '''
+    """
     Cross-entropy loss for multi-class clasification
 
     get_gradient(A, use_logits) -> gradinet
         get gradient
-    '''
+    """
 
     def __init__(self, from_logits=False):
         """
@@ -126,9 +125,8 @@ class CategoricalCrossentropy(object):
         else:
             A = y_pred
 
-        return - tf.math.reduce_sum(
-            1 / y_true.shape[0]
-            * (y_true + 1e-07) * tf.math.log(A)
+        return -tf.math.reduce_sum(
+            1 / y_true.shape[0] * (y_true + 1e-07) * tf.math.log(A)
         )
 
     def get_gradient(self, y_true, y_pred):
@@ -161,12 +159,12 @@ class CategoricalCrossentropy(object):
 
 # %%
 class MeanSquaredError(object):
-    '''
+    """
     Loss for regression.
 
     get_gradient(A) -> gradinet
         get gradient
-    '''
+    """
 
     def __call__(self, y_true, y_pred):
         """
@@ -190,9 +188,7 @@ class MeanSquaredError(object):
 
         assert y_true.shape == y_pred.shape
 
-        return tf.math.reduce_mean(
-            (y_true - y_pred)**2
-        )
+        return tf.math.reduce_mean((y_true - y_pred) ** 2)
 
     def get_gradient(self, y_true, y_pred):
         """
@@ -216,4 +212,4 @@ class MeanSquaredError(object):
 
         assert y_true.shape == y_pred.shape
 
-        return - 2 / (y_true.shape[0]) * (y_true - y_pred)
+        return -2 / (y_true.shape[0]) * (y_true - y_pred)

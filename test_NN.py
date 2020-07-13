@@ -15,14 +15,7 @@ from nn import NN, activations
 
 
 # %%
-def test_coupling(
-        my_activation,
-        tf_activation,
-        loss,
-        inputs,
-        y_true,
-        units
-        ):
+def test_coupling(my_activation, tf_activation, loss, inputs, y_true, units):
     tf.random.set_seed(42)
     tf_layer = Dense(units, activation=tf_activation)
     tf_layer.build(inputs.shape)
@@ -45,7 +38,9 @@ def test_coupling(
 
     assert np.allclose(pred_my, pred_tf)
 
-    assert all(np.allclose(grad_my, grad_tf) for grad_my, grad_tf in zip(grads_my, grads_tf))
+    assert all(
+        np.allclose(grad_my, grad_tf) for grad_my, grad_tf in zip(grads_my, grads_tf)
+    )
 
     return [pred_my, pred_tf, grads_my, grads_tf]
 
@@ -59,13 +54,8 @@ def test_softmax_kld_probs():
     y_true = tf.math.round(keras.activations.softmax(normal((N, units))))
 
     test_coupling(
-        activations.SoftMax(),
-        'softmax',
-        keras.losses.KLD,
-        inputs,
-        y_true,
-        units
-        )
+        activations.SoftMax(), "softmax", keras.losses.KLD, inputs, y_true, units
+    )
 
 
 # %%
@@ -78,12 +68,12 @@ def test_linear_categorical_loss_logits():
 
     test_coupling(
         activations.Linear(),
-        'linear',
+        "linear",
         keras.losses.CategoricalCrossentropy(from_logits=True),
         inputs,
         y_true,
-        units
-        )
+        units,
+    )
 
 
 # %%
@@ -96,17 +86,18 @@ def test_sigmoid_binary_loss():
 
     test_coupling(
         activations.Sigmoid(),
-        'sigmoid',
+        "sigmoid",
         keras.losses.BinaryCrossentropy(),
         inputs,
         y_true,
-        1
-        )
+        1,
+    )
 
 
 # %%
 
 # MSE
+
 
 def test_relu_mse():
     N = 400
@@ -114,20 +105,13 @@ def test_relu_mse():
     inputs = normal(shape) * 10
     y_true = normal((N, 1)) * 10
 
-    test_coupling(
-        activations.ReLU(),
-        'relu',
-        keras.losses.MSE,
-        inputs,
-        y_true,
-        1
-        )
+    test_coupling(activations.ReLU(), "relu", keras.losses.MSE, inputs, y_true, 1)
 
 
 # %%
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_relu_mse()
     test_linear_categorical_loss_logits()
     test_sigmoid_binary_loss()
     test_softmax_kld_probs()
-    print('All ok')
+    print("All ok")

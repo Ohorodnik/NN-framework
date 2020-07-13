@@ -18,11 +18,11 @@ X = tf.random.normal(shape=(100, 3))
 def test_forward_NeuralNet():
     tf.random.set_seed(42)
 
-    inputs = keras.layers.Input(shape=(3, ))
-    xx = keras.layers.Dense(5, activation='relu')(inputs)
-    xx = keras.layers.Dense(3, activation='relu')(xx)
-    xx = keras.layers.Dense(4, activation='relu')(xx)
-    outputs = keras.layers.Dense(3, activation='softmax')(xx)
+    inputs = keras.layers.Input(shape=(3,))
+    xx = keras.layers.Dense(5, activation="relu")(inputs)
+    xx = keras.layers.Dense(3, activation="relu")(xx)
+    xx = keras.layers.Dense(4, activation="relu")(xx)
+    outputs = keras.layers.Dense(3, activation="softmax")(xx)
 
     model_tf = keras.Model(inputs=inputs, outputs=outputs)
 
@@ -30,10 +30,10 @@ def test_forward_NeuralNet():
 
     tf.random.set_seed(42)
     lrs = [
-           keras.layers.Dense(5, activation='relu'),
-           keras.layers.Dense(3, activation='relu'),
-           keras.layers.Dense(4, activation='relu'),
-           keras.layers.Dense(3, activation='softmax')
+        keras.layers.Dense(5, activation="relu"),
+        keras.layers.Dense(3, activation="relu"),
+        keras.layers.Dense(4, activation="relu"),
+        keras.layers.Dense(3, activation="softmax"),
     ]
 
     model_my = NeuralNet(lrs)
@@ -69,8 +69,8 @@ def test_activations():
         keras.activations.softmax,
         keras.activations.tanh,
         keras.activations.sigmoid,
-        keras.activations.linear
-        ]
+        keras.activations.linear,
+    ]
 
     widths = list(range(2, 7))
 
@@ -85,8 +85,9 @@ def test_activations():
         l_my = Layer(units, activation=activation)
         l_my.build(input_shape)
 
-        assert ((l_my.kernel == l_tf.kernel).numpy().all()
-                and (l_my.bias == l_tf.bias).numpy().all())
+        assert (l_my.kernel == l_tf.kernel).numpy().all() and (
+            l_my.bias == l_tf.bias
+        ).numpy().all()
 
         X = tf.random.normal(shape=(100, 3))
 
@@ -97,11 +98,11 @@ def test_activations():
 def test_forward_layer_net():
     tf.random.set_seed(42)
 
-    inputs = keras.layers.Input(shape=(3, ))
-    xx = keras.layers.Dense(5, activation='relu')(inputs)
-    xx = keras.layers.Dense(3, activation='relu')(xx)
-    xx = keras.layers.Dense(4, activation='relu')(xx)
-    outputs = keras.layers.Dense(3, activation='softmax')(xx)
+    inputs = keras.layers.Input(shape=(3,))
+    xx = keras.layers.Dense(5, activation="relu")(inputs)
+    xx = keras.layers.Dense(3, activation="relu")(xx)
+    xx = keras.layers.Dense(4, activation="relu")(xx)
+    outputs = keras.layers.Dense(3, activation="softmax")(xx)
 
     model_tf = keras.Model(inputs=inputs, outputs=outputs)
 
@@ -109,10 +110,10 @@ def test_forward_layer_net():
 
     tf.random.set_seed(42)
     lrs = [
-           Layer(5, activation=keras.activations.relu),
-           Layer(3, activation=keras.activations.relu),
-           Layer(4, activation=keras.activations.relu),
-           Layer(3, activation=keras.activations.softmax)
+        Layer(5, activation=keras.activations.relu),
+        Layer(3, activation=keras.activations.relu),
+        Layer(4, activation=keras.activations.relu),
+        Layer(3, activation=keras.activations.softmax),
     ]
 
     model_my = NeuralNet(lrs)
@@ -123,9 +124,9 @@ def test_forward_layer_net():
 
 
 # %%
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_activations()
     test_forward_NeuralNet()
     test_forward_layer_net()
     test_initialization()
-    print('All ok')
+    print("All ok")

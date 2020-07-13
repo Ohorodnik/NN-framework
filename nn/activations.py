@@ -13,7 +13,7 @@ from tensorflow.keras import activations
 
 # %%
 class ReLU(object):
-    '''
+    """
     Rectified linear unit activation.
     A = max(Z, 0)
 
@@ -21,7 +21,7 @@ class ReLU(object):
     -------
     get_jacobians(X) -> jacobians
         get batch jacobions with respect to preacivation Z, evaluated at X.
-    '''
+    """
 
     def __call__(self, Z):
         """
@@ -65,7 +65,7 @@ class ReLU(object):
 
 # %%
 class SoftMax(object):
-    '''
+    """
     Softmax activation.
     A_i = e^(Z_i) / sum(e^Z)
 
@@ -73,7 +73,7 @@ class SoftMax(object):
     -------
     get_jacobian(Z) -> jacobian
         get jacobion with respect to inputs Z, evaluated at Z.
-    '''
+    """
 
     def __call__(self, Z):
         """
@@ -93,7 +93,7 @@ class SoftMax(object):
         return activations.softmax(Z)
 
     def get_jacobian(self, Z):
-        '''
+        """
         computes batch jacobians of sofmax acvivation fuction, evaluated at Z.
 
         Parameters
@@ -106,19 +106,18 @@ class SoftMax(object):
         jacobian : tf.Tesnor
             3D tensor of batch jacobians.
 
-        '''
+        """
 
         A = self(Z)
 
-        return (
-            tf.linalg.diag(A)
-            - tf.reshape(A, (-1, Z.shape[1], 1)) @ tf.reshape(A, (-1, 1, Z.shape[1]))
+        return tf.linalg.diag(A) - tf.reshape(A, (-1, Z.shape[1], 1)) @ tf.reshape(
+            A, (-1, 1, Z.shape[1])
         )
 
 
 # %%
 class Sigmoid(object):
-    '''
+    """
     Sigmoid activation
     A = 1 / (1 + e^-Z)
 
@@ -126,7 +125,7 @@ class Sigmoid(object):
     -------
     get_jacobian(X) -> jacobian
         get jacobion with respect to preacivation Z, evaluated at X.
-    '''
+    """
 
     def __call__(self, Z):
         """
