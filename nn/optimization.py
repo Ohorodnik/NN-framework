@@ -1,5 +1,4 @@
 import tensorflow as tf
-import numpy as np
 
 
 # %%
@@ -15,35 +14,33 @@ class BaseGradientDescent(object):
         cosntant used in velocity unpdate:
             velocity = momentum * velocity - learning_rate * gradient
             parameter = parameter + velocity
-            
+
     Methods
     -------
     Update parameters of network according to algorithm rule.
-    
+
     Parameters
     ----------
     grads_and_vars : iterable
         list of (gradient, vatiable) pairs
     """
 
-
     def __init__(self, learning_rate=0.01):
         """
         Parameters
         ----------
         learning_rate : float
-            learning rate or step 
+            learning rate or step
         momentum : float [0, 1]
             cosntant used in velocity unpdate:
         """
-        
-        self.learning_rate = learning_rate
 
+        self.learning_rate = learning_rate
 
     def apply_gradients(self, grads_and_vars):
         """
         Update parameters of network according to algorithm rule.
-        
+
         Parameters
         ----------
         grads_and_vars : iterable
@@ -54,12 +51,11 @@ class BaseGradientDescent(object):
             update = self._get_update(var=variable, grad=gradient)
             variable.assign_add(update)
 
-    
     def _get_update(self, var, grad):
         """
         Compute updater for given parameter.
         """
-    
+
         return -self.learning_rate * grad
 
 
@@ -78,26 +74,24 @@ class GradientDescent(BaseGradientDescent):
             parameter = parameter + velocity
     """
 
-
     def __init__(self, learning_rate=0.01, momentum=0):
         """
         Parameters
         ----------
         learning_rate : float
-            learning rate or step 
+            learning rate or step
         momentum : float [0, 1]
             cosntant used in velocity unpdate:
         """
-        
+
         super().__init__(learning_rate)
         self.momentum = momentum
         self._velocities = dict()
 
-    
     def _get_update(self, var, grad):
         """
         Compute updater for given parameter.
-        
+
         """
 
         assert var.shape == grad.shape
@@ -106,23 +100,22 @@ class GradientDescent(BaseGradientDescent):
 
         if self.momentum != 0:
             velocity = self._velocities.setdefault(var_id, tf.zeros_like(grad))
-        
+
             assert velocity.shape == grad.shape
-            
+
             new_velocity = self.momentum * velocity - self.learning_rate * grad
             self._velocities[var_id] = new_velocity
         else:
             new_velocity = -self.learning_rate * grad
-    
+
         return new_velocity
 
 
-
-#%%
+# %%
 class Adam(BaseGradientDescent):
     """
     Adam optimization algorithm. See: https://arxiv.org/abs/1412.6980.
-    
+
     Attributes
     ----------
     learning_rate : float
@@ -134,7 +127,7 @@ class Adam(BaseGradientDescent):
     num_stability : float
         small constant for numerical stability
     """
-    
+
     def __init__(self, learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07):
         """
         Parameters
@@ -152,7 +145,7 @@ class Adam(BaseGradientDescent):
         -------
         None.
         """
-        
+
         super().__init__(learning_rate)
         self.first_moment_rate = beta_1
         self.second_moment_rate = beta_2
@@ -160,12 +153,11 @@ class Adam(BaseGradientDescent):
         self._first_moments = dict()
         self._second_moments = dict()
         self._step = 0
-    
-    
+
     def apply_gradients(self, grads_and_vars):
         """
         Update parameters of network according to algorithm rule.
-        
+
         Parameters
         ----------
         grads_and_vars : iterable
@@ -173,28 +165,27 @@ class Adam(BaseGradientDescent):
         """
         self._step += 1
         super().apply_gradients(grads_and_vars)
-    
-    
+
     def _get_update(self, var, grad):
-        
+
         assert var.shape == grad.shape
-        
+
         var_id = id(var)
-        
+
         first_moment = self._first_moments.setdefault(
             var_id,
             tf.zeros_like(grad)
             )
-        
+
         assert grad.shape == first_moment.shape
-        
+
         second_moment = self._second_moments.setdefault(
             var_id,
             tf.zeros_like(grad)
             )
-        
+
         assert grad.shape == second_moment.shape
-        
+
         biased_first_moment = (self.first_moment_rate * first_moment
                                + (1 - self.first_moment_rate) * grad)
         biased_second_moment = (self.second_moment_rate * second_moment
@@ -203,17 +194,15 @@ class Adam(BaseGradientDescent):
                                   / (1 - self.first_moment_rate**self._step))
         corrected_second_moment = (biased_second_moment
                                    / (1 - self.second_moment_rate**self._step))
-        
+
         self._first_moments[var_id] = biased_first_moment
         self._second_moments[var_id] = biased_second_moment
-        
+
         return (- self.learning_rate * corrected_first_moment
                 / (corrected_second_moment**(1/2) + self.num_stability))
-        
-    
 
 
-        # %%
+# %%
 def sample_mini_batches(X, Y, mini_batch_size, random_seed=None):
     """
     Iterator over mini-batches.
@@ -242,12 +231,12 @@ def sample_mini_batches(X, Y, mini_batch_size, random_seed=None):
     Returns
     -------
     """
-    
+
     # if random_seed:
     #     tf.random.set_random_seed(random_seed)
     # else:
     #     pass
-    
+
     # shuffled_index = tf.random.shuffle(np.arange(start=0, stop=X.shape[0], step=1))
 
     # for i in range(np.math.ceil(X.shape[0]/mini_batch_size)):

@@ -7,7 +7,6 @@ Created on Fri Jun 26 11:51:04 2020
 """
 
 import tensorflow as tf
-import matplotlib.pyplot as plt
 
 from sklearn import datasets
 from nn.utils import train, plot_decision

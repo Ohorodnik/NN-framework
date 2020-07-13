@@ -1,6 +1,4 @@
 import tensorflow as tf
-import numpy as np
-
 from tensorflow import keras
 from nn import activations
 
@@ -16,7 +14,7 @@ class NeuralNet(object):
         contains all trainable parameters.
     layers : iterable
         ordered collection of network layers.
-        
+
     Methods
     -------
     add(layer) -> self
@@ -24,7 +22,6 @@ class NeuralNet(object):
     backprop() -> gradinents
         Backpropagete gdatient of the loss through the network.
     """
-
 
     def __init__(self, layers=[]):
         """
@@ -34,18 +31,16 @@ class NeuralNet(object):
             layers of the network
         """
         layers_built = all([layer.built for layer in layers])
-        
+
         if layers_built:
             for layer_l, layer_r in zip(layers[:-1], layers[1:]):
                 assert layer_l.units == layer_r.kernel.shape[0]
         else:
             pass
-                
-        
+
         self.layers = layers[:]
         self.trainable_weights = []
         self.built = layers_built
-
 
     def __call__(self, inputs):
         """
@@ -62,18 +57,17 @@ class NeuralNet(object):
             activations of last layer on network.
             shape=(sample size, output dimmentions)
         """
-        
+
         if not self.built:
             self.build(inputs.shape)
         else:
             pass
-        
+
         activations = inputs
         for layer in self.layers:
             activations = layer(activations)
 
         return activations
-
 
     def add(self, layer):
         """
@@ -90,9 +84,9 @@ class NeuralNet(object):
         Returns
         -------
         self
-            network with added layer 
+            network with added layer
         """
-        
+
         if layer.built:
             # layer.kernel only exisits after layer.buid() call.
             assert self.layers[-1].units == layer.kernel.shape[0]
@@ -102,8 +96,7 @@ class NeuralNet(object):
         self.layers.append(layer)
 
         return self
-    
-    
+
     def build(self, input_shape):
         """
         Create variables for all layers in the network.
@@ -118,21 +111,20 @@ class NeuralNet(object):
         None.
 
         """
-        
+
         input_dim = input_shape[1]
         for layer in self.layers:
             if not layer.built:
                 layer.build(input_shape=(1, input_dim))
             else:
                 pass
-            
+
             input_dim = layer.units
-            
+
             self.trainable_weights += layer.trainable_weights
-            
+
         self.built = True
-    
-    
+
     def backprop(self, dY):
         """
         Backpropagete gratient of the loss through the network.
@@ -149,14 +141,14 @@ class NeuralNet(object):
             parametrs. (Same order as trainable_weights)
 
         """
-        
+
         gradients = []
         dA = dY
-        
+
         for layer in reversed(self.layers):
             dA, trainable = layer.backprop(dA)
             gradients = [*trainable, *gradients]
-        
+
         return gradients
 
 
@@ -188,7 +180,7 @@ class Layer(object):
         number of inputs to a unit.
     kernel_reguralizer : func
         returns loss term for weight regularization.
-        
+
     Methods
     -------
     backprop(dA) -> gradinents
@@ -197,15 +189,16 @@ class Layer(object):
         Create variables for the layer.
     """
 
-    def __init__(self,
-            units,
-            activation=activations.Linear(),
-            kernel_initializer=keras.initializers.GlorotUniform(),
-            bias_initializer=tf.zeros,
-            input_shape=None,
-            use_bias=True,
-            kernel_reguralizer=None
-        ):
+    def __init__(
+        self,
+        units,
+        activation=activations.Linear(),
+        kernel_initializer=keras.initializers.GlorotUniform(),
+        bias_initializer=tf.zeros,
+        input_shape=None,
+        use_bias=True,
+        kernel_reguralizer=None
+    ):
         """
 
         Parameters
@@ -230,7 +223,7 @@ class Layer(object):
         None.
 
         """
-        
+
         self.units = units
         self.activation = activation
         self.kernel_initializer = kernel_initializer
@@ -239,7 +232,6 @@ class Layer(object):
         self.use_bias = use_bias
         self.kernel_reguralizer = kernel_reguralizer
         self.built = False
-
 
     def __call__(self, inputs):
         """
@@ -257,14 +249,14 @@ class Layer(object):
             activations of the layer
             shape=(sample size, number of units in the layer)
         """
-        
+
         if not self.built:
             self.built(inputs.shape)
         else:
             pass
-        
+
         self.inputs = inputs
-        
+
         Z = inputs @ self.kernel
         if self.use_bias:
             Z += self.bias
@@ -295,21 +287,20 @@ class Layer(object):
             [d-trainable] - gradients with respect to all trainable parameters.
 
         '''
-        
+
         dZ = tf.reshape(
             dA[:, tf.newaxis, :] @ self.activation.get_jacobian(self.Z),
             shape=dA.shape
         )
-        
+
         dB = tf.math.reduce_sum(dZ, axis=0, keepdims=True)
-        
+
         dW = tf.matmul(self.inputs, dZ, transpose_a=True)
-        
+
         dX = tf.matmul(dZ, self.kernel, transpose_b=True)
-        
+
         return [dX, [dW, dB]]
-    
-    
+
     def build(self, input_shape):
         """
         Create variables for the layer.
@@ -330,13 +321,13 @@ class Layer(object):
             self.kernel_initializer(shape=(input_dim, self.units))
             )
         trainable_weights.append(self.kernel)
-        
+
         if self.use_bias:
             self.bias = tf.Variable(self.bias_initializer(shape=(1, self.units)))
             trainable_weights.append(self.bias)
         else:
             pass
-        
+
         self.built = True
         self.trainable_weights = trainable_weights
 
@@ -355,8 +346,6 @@ class Dropout:
 
     def __init__(self, keep_prob):
         pass
-
-
 
     def __call__(self, activations):
         """
@@ -384,4 +373,3 @@ class BatchNormalization(object):
     """
     TODO
     """
-    
