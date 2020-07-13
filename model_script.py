@@ -7,10 +7,10 @@ Created on Fri Jun 26 11:51:04 2020
 """
 
 import tensorflow as tf
-
 from sklearn import datasets
-from nn.utils import train, plot_decision
-from nn import optimization, losses, activations, NN
+
+from nn import NN, activations, losses, optimization
+from nn.utils import plot_decision, train
 
 # %%
 X, Y = datasets.make_moons(n_samples=6_000, noise=0.3, random_state=0)

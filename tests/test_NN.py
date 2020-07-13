@@ -6,16 +6,17 @@ Created on Fri Jun 19 16:06:09 2020
 @author: vitalii
 """
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.layers import Dense
 from tensorflow.random import normal
-from tensorflow import keras
+
 from nn import NN, activations
 
 
 # %%
-def test_coupling(my_activation, tf_activation, loss, inputs, y_true, units):
+def helper_test_coupling(my_activation, tf_activation, loss, inputs, y_true, units):
     tf.random.set_seed(42)
     tf_layer = Dense(units, activation=tf_activation)
     tf_layer.build(inputs.shape)
@@ -42,8 +43,6 @@ def test_coupling(my_activation, tf_activation, loss, inputs, y_true, units):
         np.allclose(grad_my, grad_tf) for grad_my, grad_tf in zip(grads_my, grads_tf)
     )
 
-    return [pred_my, pred_tf, grads_my, grads_tf]
-
 
 # %%
 # softmax + KLD (probabilities)
@@ -53,7 +52,7 @@ def test_softmax_kld_probs():
     inputs = normal(shape)
     y_true = tf.math.round(keras.activations.softmax(normal((N, units))))
 
-    test_coupling(
+    helper_test_coupling(
         activations.SoftMax(), "softmax", keras.losses.KLD, inputs, y_true, units
     )
 
@@ -66,7 +65,7 @@ def test_linear_categorical_loss_logits():
     inputs = normal(shape)
     y_true = tf.math.round(keras.activations.softmax(normal((N, units))))
 
-    test_coupling(
+    helper_test_coupling(
         activations.Linear(),
         "linear",
         keras.losses.CategoricalCrossentropy(from_logits=True),
@@ -84,7 +83,7 @@ def test_sigmoid_binary_loss():
     inputs = normal(shape)
     y_true = tf.math.round(keras.activations.sigmoid(normal((N, 1))))
 
-    test_coupling(
+    helper_test_coupling(
         activations.Sigmoid(),
         "sigmoid",
         keras.losses.BinaryCrossentropy(),
@@ -105,7 +104,7 @@ def test_relu_mse():
     inputs = normal(shape) * 10
     y_true = normal((N, 1)) * 10
 
-    test_coupling(activations.ReLU(), "relu", keras.losses.MSE, inputs, y_true, 1)
+    helper_test_coupling(activations.ReLU(), "relu", keras.losses.MSE, inputs, y_true, 1)
 
 
 # %%

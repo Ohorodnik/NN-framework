@@ -8,7 +8,8 @@ Created on Sat Jun 13 16:33:13 2020
 
 import tensorflow as tf
 from tensorflow import keras
-from nn.NN import NeuralNet, Layer
+
+from nn.NN import Layer, NeuralNet
 
 # %%
 X = tf.random.normal(shape=(100, 3))

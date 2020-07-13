@@ -6,12 +6,14 @@ Created on Sat Jun  6 16:17:55 2020
 @author: vitalii
 """
 
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from sklearn import datasets
-from nn.utils import train, plot_decision
-from nn import optimization
 import datetime
+
+import tensorflow as tf
+from matplotlib import pyplot as plt
+from sklearn import datasets
+
+from nn import optimization
+from nn.utils import plot_decision, train
 
 tf.random.set_seed(42)
 

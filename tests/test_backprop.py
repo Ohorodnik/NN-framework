@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jun 14 19:42:24 2020
+Created on Sun Jun 14 19:42:24 2020.
 
 @author: vitalii
 """
 
 import numpy as np
 import tensorflow as tf
-from nn.activations import ReLU, SoftMax, Sigmoid, Linear
-from nn.losses import CategoricalCrossentropy, BinaryCrossentropy, MeanSquaredError
 from tensorflow import keras
-from tensorflow.random import normal
 from tensorflow.keras import losses
+from tensorflow.random import normal
+
+from nn.activations import Linear, ReLU, Sigmoid, SoftMax
+from nn.losses import (BinaryCrossentropy, CategoricalCrossentropy,
+                       MeanSquaredError)
 
 
 # %%

@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jun 10 18:00:53 2020
+Created on Wed Jun 10 18:00:53 2020.
 
 @author: vitalii
 """
 
 import tensorflow as tf
-from tensorflow.linalg import diag
 from tensorflow.keras import activations
+from tensorflow.linalg import diag
 
 
 # %%
 class ReLU(object):
     """
     Rectified linear unit activation.
+
     A = max(Z, 0)
 
     Methods
